@@ -613,10 +613,13 @@ function render(){
     return;
   }
   // 탭별 소계
-  const tabSum = items.reduce((s,i)=>s+(Number(i.amount)||0),0);
+  // 전체 탭은 상단 카드와 동일하게 상환X 제외
+  const sumItems = activeTab==='전체' ? items.filter(i=>i.priority!=='상환X') : items;
+  const tabSum = sumItems.reduce((s,i)=>s+(Number(i.amount)||0),0);
   const countLabel = activeTab==='상환완료' ? `상환완료 ${items.length}건` : `${activeTab} ${items.length}건`;
+  const sumNote = activeTab==='전체' ? ' (상환X 제외)' : '';
   const sumBar = tabSum > 0
-    ? `<div class="tab-sum-bar"><span class="tab-sum-label">${countLabel} 합계</span><span class="tab-sum-val">${fmt(tabSum)}</span></div>`
+    ? `<div class="tab-sum-bar"><span class="tab-sum-label">${countLabel} 합계${sumNote}</span><span class="tab-sum-val">${fmt(tabSum)}</span></div>`
     : '';
   listEl.innerHTML = items.map(cardHTML).join('') + sumBar;
 }
