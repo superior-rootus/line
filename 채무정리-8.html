@@ -766,9 +766,25 @@ document.getElementById('exportPdfBtn').addEventListener('click', async () => {
 (async function init(){
   document.getElementById('list').innerHTML = `<div class="status-bar">불러오는 중…</div>`;
   await loadData();
+  await applyPatches();
   updateSaveUI();
   render();
 })();
+
+// 1회성 보정: 저장된 데이터에서 홍기순·김영일을 상환X로 변경 (합계 제외)
+async function applyPatches(){
+  const FLAG = 'debts_patch_20261103_excludeX';
+  try{ if(localStorage.getItem(FLAG)) return; }catch(e){}
+  let changed = false;
+  data.forEach(d => {
+    if((d.name==='홍기순' || d.name==='김영일') && !d.completed && d.priority!=='상환X'){
+      d.priority = '상환X';
+      changed = true;
+    }
+  });
+  if(changed) await persist(true);
+  try{ localStorage.setItem(FLAG, '1'); }catch(e){}
+}
 </script>
 </body>
 </html>
